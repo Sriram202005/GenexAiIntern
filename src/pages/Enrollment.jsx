@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // ✅ Import Link
+import { Link } from "react-router-dom";
 
 const Enrollment = () => {
   const [form, setForm] = useState({
@@ -14,15 +14,15 @@ const Enrollment = () => {
   const [errors, setErrors] = useState({});
 
   const courseTypes = [
-    "--- Select ---",
-    "Corporate Training",
-    "Career Augmentation Training",
+    { label: "--- Select ---", value: "" },
+    { label: "Corporate Training", value: "Corporate Training" },
+    { label: "Career Augmentation Training", value: "Career Augmentation Training" },
   ];
 
   const courses = [
-    "--- Select ---",
-    "Change in Technology - $450 per person",
-    "Fresher - $500 per person",
+    { label: "--- Select ---", value: "" },
+    { label: "Change in Technology - $450 per person", value: "Change in Technology - $450 per person" },
+    { label: "Fresher - $500 per person", value: "Fresher - $500 per person" },
   ];
 
   const handleChange = (e) => {
@@ -32,13 +32,24 @@ const Enrollment = () => {
 
   const validate = () => {
     const newErrors = {};
+
     if (!form.name.trim()) newErrors.name = "This field is required.";
-    if (!form.email.trim()) newErrors.email = "Please enter your email.";
-    if (!form.phone.trim()) newErrors.phone = "Please enter your mobile number.";
-    if (!form.courseType || form.courseType === "--- Select ---")
-      newErrors.courseType = "Please select your class.";
-    if (!form.course || form.course === "--- Select ---")
-      newErrors.course = "Please select your course.";
+
+    if (!form.email.trim()) {
+      newErrors.email = "Please enter your email.";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Enter a valid email address.";
+    }
+
+    if (!form.phone.trim()) {
+      newErrors.phone = "Please enter your mobile number.";
+    } else if (!/^\d{10}$/.test(form.phone)) {
+      newErrors.phone = "Enter a valid 10-digit phone number.";
+    }
+
+    if (!form.courseType) newErrors.courseType = "Please select your class.";
+    if (!form.course) newErrors.course = "Please select your course.";
+
     return newErrors;
   };
 
@@ -65,7 +76,6 @@ const Enrollment = () => {
     <div className="p-6 max-w-md mx-auto bg-white rounded shadow-md mt-10">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-3xl font-bold">Enrollment Form</h3>
-        {/* Cancel link styled as a close (X) or cancel button */}
         <Link
           to="/trainings"
           className="text-gray-500 hover:text-red-600 text-2xl font-bold"
@@ -76,8 +86,6 @@ const Enrollment = () => {
       </div>
 
       <form onSubmit={handleSubmit} noValidate>
-        {/* ...[All form fields remain unchanged]... */}
-
         <label className="block mb-2 font-medium" htmlFor="name">
           Person Name*
         </label>
@@ -91,9 +99,7 @@ const Enrollment = () => {
           }`}
           required
         />
-        {errors.name && (
-          <p className="text-red-600 text-sm mb-2">{errors.name}</p>
-        )}
+        {errors.name && <p className="text-red-600 text-sm mb-2">{errors.name}</p>}
 
         <label className="block mb-2 font-medium" htmlFor="email">
           Person Email*
@@ -109,9 +115,7 @@ const Enrollment = () => {
           }`}
           required
         />
-        {errors.email && (
-          <p className="text-red-600 text-sm mb-2">{errors.email}</p>
-        )}
+        {errors.email && <p className="text-red-600 text-sm mb-2">{errors.email}</p>}
 
         <label className="block mb-2 font-medium" htmlFor="phone">
           Phone No*
@@ -127,9 +131,7 @@ const Enrollment = () => {
           }`}
           required
         />
-        {errors.phone && (
-          <p className="text-red-600 text-sm mb-2">{errors.phone}</p>
-        )}
+        {errors.phone && <p className="text-red-600 text-sm mb-2">{errors.phone}</p>}
 
         <label className="block mb-2 font-medium" htmlFor="courseType">
           Select Your Classes*
@@ -145,8 +147,8 @@ const Enrollment = () => {
           required
         >
           {courseTypes.map((option, idx) => (
-            <option key={idx} value={option}>
-              {option}
+            <option key={idx} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
@@ -168,14 +170,12 @@ const Enrollment = () => {
           required
         >
           {courses.map((option, idx) => (
-            <option key={idx} value={option}>
-              {option}
+            <option key={idx} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
-        {errors.course && (
-          <p className="text-red-600 text-sm mb-2">{errors.course}</p>
-        )}
+        {errors.course && <p className="text-red-600 text-sm mb-2">{errors.course}</p>}
 
         <label className="block mb-2 font-medium" htmlFor="message">
           Message

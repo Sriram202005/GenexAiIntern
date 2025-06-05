@@ -49,7 +49,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Home from './pages/Home.jsx';
 import Services from './pages/Services.jsx';
-import TrainingPage from './pages/TrainingPage.jsx';               // Main trainings page
+import TrainingPage from './pages/TrainingPage.jsx';               
 
 import RealTimeInternshipPage from './pages/RealTimeInternshipPage.jsx';
 import CorporateTrainingPage from './pages/CorporateTrainingPage.jsx';

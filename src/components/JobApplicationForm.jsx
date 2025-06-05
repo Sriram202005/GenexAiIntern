@@ -13,8 +13,8 @@ const JobApplicationForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-
   const location = useLocation();
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const prefillPosition = params.get("position");
@@ -30,15 +30,47 @@ const JobApplicationForm = () => {
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
+
+    // Clear error as user types
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "This field is required.";
-    if (!form.email.trim()) newErrors.email = "Email is required.";
-    if (!form.phone.trim()) newErrors.phone = "Phone number is required.";
-    if (!form.position.trim()) newErrors.position = "Position is required.";
-    if (!form.resume) newErrors.resume = "Please upload your resume.";
+    const trimmed = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      position: form.position.trim(),
+      linkedin: form.linkedin.trim(),
+      coverLetter: form.coverLetter.trim(),
+    };
+
+    if (!trimmed.name) newErrors.name = "Full name is required.";
+
+    if (!trimmed.email) {
+      newErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(trimmed.email)) {
+      newErrors.email = "Enter a valid email address.";
+    }
+
+    if (!trimmed.phone) {
+      newErrors.phone = "Phone number is required.";
+    } else if (!/^\+?\d{10,15}$/.test(trimmed.phone)) {
+      newErrors.phone = "Enter a valid phone number (10-15 digits).";
+    }
+
+    if (!trimmed.position) newErrors.position = "Position is required.";
+
+    if (!form.resume) {
+      newErrors.resume = "Please upload your resume.";
+    } else {
+      const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+      if (!allowedTypes.includes(form.resume.type)) {
+        newErrors.resume = "Only PDF, DOC, or DOCX files are allowed.";
+      }
+    }
+
     return newErrors;
   };
 
@@ -49,8 +81,9 @@ const JobApplicationForm = () => {
       setErrors(validationErrors);
       return;
     }
-    setErrors({});
+
     alert("Application submitted successfully!");
+
     setForm({
       name: "",
       email: "",
@@ -60,10 +93,11 @@ const JobApplicationForm = () => {
       coverLetter: "",
       resume: null,
     });
+    setErrors({});
   };
 
   return (
-    <div className="w-full flex justify-center px-4 ">
+    <div className="w-full flex justify-center px-4">
       <div className="w-full max-w-xl bg-white rounded-xl shadow-xl p-6 text-black border border-gray-300">
         {/* Header */}
         <div className="mb-6 text-center relative">
@@ -79,6 +113,7 @@ const JobApplicationForm = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
+          {/* Name */}
           <label className="block mb-2 font-medium" htmlFor="name">
             Full Name*
           </label>
@@ -87,13 +122,14 @@ const JobApplicationForm = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
-            className={`w-full p-2 mb-2 rounded ${
+            className={`w-full p-2 mb-1 rounded ${
               errors.name ? "border-red-500" : "border border-gray-300"
             }`}
             placeholder="Your full name"
           />
-          {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+          {errors.name && <p className="text-red-600 text-sm mb-2">{errors.name}</p>}
 
+          {/* Email */}
           <label className="block mb-2 font-medium" htmlFor="email">
             Email Address*
           </label>
@@ -103,13 +139,14 @@ const JobApplicationForm = () => {
             type="email"
             value={form.email}
             onChange={handleChange}
-            className={`w-full p-2 mb-2 rounded ${
+            className={`w-full p-2 mb-1 rounded ${
               errors.email ? "border-red-500" : "border border-gray-300"
             }`}
             placeholder="you@example.com"
           />
-          {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+          {errors.email && <p className="text-red-600 text-sm mb-2">{errors.email}</p>}
 
+          {/* Phone */}
           <label className="block mb-2 font-medium" htmlFor="phone">
             Phone Number*
           </label>
@@ -119,13 +156,14 @@ const JobApplicationForm = () => {
             type="tel"
             value={form.phone}
             onChange={handleChange}
-            className={`w-full p-2 mb-2 rounded ${
+            className={`w-full p-2 mb-1 rounded ${
               errors.phone ? "border-red-500" : "border border-gray-300"
             }`}
             placeholder="e.g. +91-9876543210"
           />
-          {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
+          {errors.phone && <p className="text-red-600 text-sm mb-2">{errors.phone}</p>}
 
+          {/* Position */}
           <label className="block mb-2 font-medium" htmlFor="position">
             Position Applying For*
           </label>
@@ -134,15 +172,14 @@ const JobApplicationForm = () => {
             name="position"
             value={form.position}
             onChange={handleChange}
-            className={`w-full p-2 mb-2 rounded ${
+            className={`w-full p-2 mb-1 rounded ${
               errors.position ? "border-red-500" : "border border-gray-300"
             }`}
             placeholder="e.g. Full Stack Developer"
           />
-          {errors.position && (
-            <p className="text-red-600 text-sm">{errors.position}</p>
-          )}
+          {errors.position && <p className="text-red-600 text-sm mb-2">{errors.position}</p>}
 
+          {/* LinkedIn */}
           <label className="block mb-2 font-medium" htmlFor="linkedin">
             LinkedIn Profile (optional)
           </label>
@@ -155,6 +192,7 @@ const JobApplicationForm = () => {
             placeholder="LinkedIn URL"
           />
 
+          {/* Resume */}
           <label className="block mb-2 font-medium" htmlFor="resume">
             Upload Resume*
           </label>
@@ -164,15 +202,14 @@ const JobApplicationForm = () => {
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleChange}
-            className="w-full p-2 mb-2 rounded border border-gray-300"
+            className="w-full p-2 mb-1 rounded border border-gray-300"
           />
           {form.resume && (
             <p className="text-green-700 text-sm mb-1">Uploaded: {form.resume.name}</p>
           )}
-          {errors.resume && (
-            <p className="text-red-600 text-sm">{errors.resume}</p>
-          )}
+          {errors.resume && <p className="text-red-600 text-sm mb-2">{errors.resume}</p>}
 
+          {/* Cover Letter */}
           <label className="block mb-2 font-medium" htmlFor="coverLetter">
             Cover Letter
           </label>
@@ -186,6 +223,7 @@ const JobApplicationForm = () => {
             placeholder="Write a short note (optional)"
           />
 
+          {/* Submit */}
           <button
             type="submit"
             className="w-full py-2 bg-red-900 hover:bg-red-800 text-white font-semibold rounded transition"
@@ -199,8 +237,6 @@ const JobApplicationForm = () => {
 };
 
 export default JobApplicationForm;
-
-
 
 
 // import { useState } from 'react';

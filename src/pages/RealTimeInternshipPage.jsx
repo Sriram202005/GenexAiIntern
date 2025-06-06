@@ -1,5 +1,19 @@
+import React from "react";
 import Button from '@/components/ui/Button';
-import { FunctionalConsulting,TechnicalConsulting } from '../components/Consulting';
+import { FunctionalConsulting, TechnicalConsulting } from '../components/Consulting';
+
+// Import icons from react-icons
+import { FiGlobe, FiCloud, FiSmartphone, FiSettings } from 'react-icons/fi';
+import { BiBarChartAlt2, BiNetworkChart } from 'react-icons/bi';
+
+const projectCategories = [
+  { name: "Web Application Development", Icon: FiGlobe },
+  { name: "Data Analytics Solutions", Icon: BiBarChartAlt2 },
+  { name: "Cloud Migration Projects", Icon: FiCloud },
+  { name: "Mobile Application Development", Icon: FiSmartphone },
+  { name: "Enterprise Software Integration", Icon: BiNetworkChart },
+  { name: "DevOps Implementation", Icon: FiSettings },
+];
 
 const RealTimeInternshipPage = () => {
   return (
@@ -16,44 +30,38 @@ const RealTimeInternshipPage = () => {
       </section>
 
       {/* Real-World Projects Section */}
-      <section className=" p-8 space-y-6">
+      <section className="p-8 space-y-6">
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold text-red-700">Program Benefits:</h3>
-          <ul className="list-disc pl-6 text-gray-700 space-y-1">
-            <li>Work on actual client projects with real deliverables</li>
-            <li>Collaborate in cross-functional teams</li>
-            <li>One-on-one mentorship from project leaders</li>
-            <li>Stipend based on performance and project contribution</li>
-            <li>High potential for full-time employment upon completion</li>
+          <h3 className="text-2xl  mb-6  font-semibold text-red-900">Program Benefits:</h3>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700 text-base">
+            <li>✅ Work on actual client projects with real deliverables</li>
+            <li>✅ Collaborate in cross-functional teams</li>
+            <li>✅ One-on-one mentorship from project leaders</li>
+            <li>✅ Stipend based on performance and project contribution</li>
+            <li>✅ High potential for full-time employment upon completion</li>
           </ul>
         </div>
       </section>
 
       {/* Project Categories */}
       <section className="mt-10 space-y-6">
-        <h2 className="text-3xl font-semibold text-center text-red-800">Project Categories</h2>
+        <h2 className="text-3xl font-semibold text-center text-red-800 mb-8">Project Categories</h2>
         <div className="grid md:grid-cols-2 gap-6 text-gray-800">
-          {[
-            "Web Application Development",
-            "Data Analytics Solutions",
-            "Cloud Migration Projects",
-            "Mobile Application Development",
-            "Enterprise Software Integration",
-            "DevOps Implementation",
-          ].map((category, index) => (
+          {projectCategories.map(({ name, Icon }, index) => (
             <div
               key={index}
-              className=" p-5 rounded-xl shadow-sm hover:shadow-lg transition"
+              className="flex items-center p-5 rounded-xl shadow-sm hover:shadow-lg transition cursor-pointer bg-white"
             >
-              {category}
+              <Icon className="text-red-900 mr-4 w-10 h-10" />
+              <span className="text-lg font-medium">{name}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Eligibility Criteria */}
-      <section className="mt-5 bg-white  p-6  space-y-4">
-        <h2 className="text-2xl font-bold text-red-800">Eligibility Criteria</h2>
+      <section className="mt-5 bg-white p-6 space-y-4">
+        <h2 className="text-2xl  mb-6  font-semibold text-red-900">Eligibility Criteria</h2>
         <ul className="list-disc pl-6 text-gray-700 space-y-1">
           <li>Completion of basic training in relevant technology</li>
           <li>Strong problem-solving skills and aptitude</li>
@@ -100,7 +108,7 @@ const RealTimeInternshipPage = () => {
       </section>
       
       {/* CTA Buttons */}
-      <section className="text-center space-y-4  py-10 rounded-lg">
+      <section className="text-center space-y-4 py-10 rounded-lg">
         <h2 className="text-2xl font-semibold text-red-900">Ready to Get Started?</h2>
         <p className="text-gray-700">
           Whether you're looking to start a career in IT, gain real-world experience, or upskill your team, we have a program for you.
@@ -114,8 +122,9 @@ const RealTimeInternshipPage = () => {
           </Button>
         </div>
       </section>
-      <TechnicalConsulting/>
-      <FunctionalConsulting/>      
+
+      <TechnicalConsulting />
+      <FunctionalConsulting />
     </div>
   );
 };

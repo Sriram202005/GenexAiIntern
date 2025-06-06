@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const JobApplicationForm = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -13,230 +15,229 @@ const JobApplicationForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const location = useLocation();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const prefillPosition = params.get("position");
-    if (prefillPosition) {
-      setForm((prev) => ({ ...prev, position: prefillPosition }));
-    }
-  }, [location]);
-
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "resume") {
-      setForm((prev) => ({ ...prev, resume: files[0] }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-
-    // Clear error as user types
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
 
   const validate = () => {
     const newErrors = {};
-    const trimmed = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      position: form.position.trim(),
-      linkedin: form.linkedin.trim(),
-      coverLetter: form.coverLetter.trim(),
-    };
 
-    if (!trimmed.name) newErrors.name = "Full name is required.";
-
-    if (!trimmed.email) {
-      newErrors.email = "Email is required.";
-    } else if (!/\S+@\S+\.\S+/.test(trimmed.email)) {
-      newErrors.email = "Enter a valid email address.";
+    // Name
+    if (!form.name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (!/^[A-Za-z\s]+$/.test(form.name)) {
+      newErrors.name = "Name can only contain letters and spaces";
     }
 
-    if (!trimmed.phone) {
-      newErrors.phone = "Phone number is required.";
-    } else if (!/^\+?\d{10,15}$/.test(trimmed.phone)) {
-      newErrors.phone = "Enter a valid phone number (10-15 digits).";
+    // Email
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Email is invalid";
     }
 
-    if (!trimmed.position) newErrors.position = "Position is required.";
+    // Phone
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(form.phone)) {
+      newErrors.phone = "Phone must be a 10‑digit number";
+    }
 
+    // Position — now must be at least 8 characters
+    if (!form.position.trim()) {
+      newErrors.position = "Position is required";
+    } else if (form.position.trim().length < 8) {
+      newErrors.position = "Position must be at least 8 characters";
+    }
+
+    // LinkedIn (optional)
+    if (
+      form.linkedin &&
+      !/^https:\/\/(www\.)?linkedin\.com\/.*$/.test(form.linkedin)
+    ) {
+      newErrors.linkedin = "LinkedIn profile must be a valid LinkedIn URL";
+    }
+
+    // Resume file type
     if (!form.resume) {
-      newErrors.resume = "Please upload your resume.";
-    } else {
-      const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
-      if (!allowedTypes.includes(form.resume.type)) {
-        newErrors.resume = "Only PDF, DOC, or DOCX files are allowed.";
-      }
+      newErrors.resume = "Resume is required";
+    } else if (
+      ![
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ].includes(form.resume.type)
+    ) {
+      newErrors.resume = "Only PDF, DOC, or DOCX files are allowed";
     }
 
-    return newErrors;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setForm({
+      ...form,
+      [name]: files ? files[0] : value,
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+    if (validate()) {
+      console.log("Form submitted", form);
+      alert("Application submitted successfully!");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        position: "",
+        linkedin: "",
+        coverLetter: "",
+        resume: null,
+      });
+      setErrors({});
     }
-
-    alert("Application submitted successfully!");
-
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      position: "",
-      linkedin: "",
-      coverLetter: "",
-      resume: null,
-    });
-    setErrors({});
   };
 
   return (
-    <div className="w-full flex justify-center px-4">
-      <div className="w-full max-w-xl bg-white rounded-xl shadow-xl p-6 text-black border border-gray-300">
-        {/* Header */}
-        <div className="mb-6 text-center relative">
-          <h3 className="text-2xl font-bold">Job Application</h3>
-          <Link
-            to="/jobs"
-            className="absolute top-0 right-0 text-2xl font-bold text-red-700 hover:text-red-900"
-            title="Cancel"
-          >
-            ×
-          </Link>
-        </div>
+    <div className="relative max-w-3xl mx-auto p-6 bg-white shadow-md rounded">
+      {/* Close (×) Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-4 right-4 text-2xl font-bold text-gray-500 hover:text-gray-700"
+        aria-label="Close form"
+      >
+        ×
+      </button>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} noValidate>
-          {/* Name */}
-          <label className="block mb-2 font-medium" htmlFor="name">
-            Full Name*
-          </label>
+      <h2 className="text-3xl font-bold mb-4 text-red-900">Job Application Form</h2>
+      <form onSubmit={handleSubmit} noValidate>
+        {/* Name */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Full Name</label>
           <input
-            id="name"
+            type="text"
             name="name"
             value={form.name}
             onChange={handleChange}
-            className={`w-full p-2 mb-1 rounded ${
-              errors.name ? "border-red-500" : "border border-gray-300"
-            }`}
-            placeholder="Your full name"
+            className="w-full p-2 border rounded"
+            required
           />
-          {errors.name && <p className="text-red-600 text-sm mb-2">{errors.name}</p>}
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+        </div>
 
-          {/* Email */}
-          <label className="block mb-2 font-medium" htmlFor="email">
-            Email Address*
-          </label>
+        {/* Email */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Email</label>
           <input
-            id="email"
-            name="email"
             type="email"
+            name="email"
             value={form.email}
             onChange={handleChange}
-            className={`w-full p-2 mb-1 rounded ${
-              errors.email ? "border-red-500" : "border border-gray-300"
-            }`}
-            placeholder="you@example.com"
+            className="w-full p-2 border rounded"
+            required
           />
-          {errors.email && <p className="text-red-600 text-sm mb-2">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
+        </div>
 
-          {/* Phone */}
-          <label className="block mb-2 font-medium" htmlFor="phone">
-            Phone Number*
-          </label>
+        {/* Phone */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Phone</label>
           <input
-            id="phone"
-            name="phone"
             type="tel"
+            name="phone"
             value={form.phone}
             onChange={handleChange}
-            className={`w-full p-2 mb-1 rounded ${
-              errors.phone ? "border-red-500" : "border border-gray-300"
-            }`}
-            placeholder="e.g. +91-9876543210"
+            className="w-full p-2 border rounded"
+            required
           />
-          {errors.phone && <p className="text-red-600 text-sm mb-2">{errors.phone}</p>}
+          {errors.phone && (
+            <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
+        </div>
 
-          {/* Position */}
-          <label className="block mb-2 font-medium" htmlFor="position">
-            Position Applying For*
+        {/* Position */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">
+            Position 
           </label>
           <input
-            id="position"
+            type="text"
             name="position"
             value={form.position}
             onChange={handleChange}
-            className={`w-full p-2 mb-1 rounded ${
-              errors.position ? "border-red-500" : "border border-gray-300"
-            }`}
-            placeholder="e.g. Full Stack Developer"
+            className="w-full p-2 border rounded"
+            minLength={8}
+            required
           />
-          {errors.position && <p className="text-red-600 text-sm mb-2">{errors.position}</p>}
+          {errors.position && (
+            <p className="text-red-500 text-sm">{errors.position}</p>
+          )}
+        </div>
 
-          {/* LinkedIn */}
-          <label className="block mb-2 font-medium" htmlFor="linkedin">
+        {/* LinkedIn */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">
             LinkedIn Profile (optional)
           </label>
           <input
-            id="linkedin"
+            type="url"
             name="linkedin"
             value={form.linkedin}
             onChange={handleChange}
-            className="w-full p-2 mb-4 rounded border border-gray-300"
-            placeholder="LinkedIn URL"
+            className="w-full p-2 border rounded"
+            placeholder="https://www.linkedin.com/in/yourprofile"
           />
-
-          {/* Resume */}
-          <label className="block mb-2 font-medium" htmlFor="resume">
-            Upload Resume*
-          </label>
-          <input
-            id="resume"
-            name="resume"
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={handleChange}
-            className="w-full p-2 mb-1 rounded border border-gray-300"
-          />
-          {form.resume && (
-            <p className="text-green-700 text-sm mb-1">Uploaded: {form.resume.name}</p>
+          {errors.linkedin && (
+            <p className="text-red-500 text-sm">{errors.linkedin}</p>
           )}
-          {errors.resume && <p className="text-red-600 text-sm mb-2">{errors.resume}</p>}
+        </div>
 
-          {/* Cover Letter */}
-          <label className="block mb-2 font-medium" htmlFor="coverLetter">
-            Cover Letter
+        {/* Cover Letter */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">
+            Cover Letter (optional)
           </label>
           <textarea
-            id="coverLetter"
             name="coverLetter"
             value={form.coverLetter}
             onChange={handleChange}
-            rows={4}
-            className="w-full p-2 mb-4 rounded border border-gray-300"
-            placeholder="Write a short note (optional)"
+            className="w-full p-2 border rounded"
+            rows="4"
           />
+        </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full py-2 bg-red-900 hover:bg-red-800 text-white font-semibold rounded transition"
-          >
-            Submit Application
-          </button>
-        </form>
-      </div>
+        {/* Resume */}
+        <div className="mb-6">
+          <label className="block mb-1 font-medium">Upload Resume</label>
+          <input
+            type="file"
+            name="resume"
+            accept=".pdf,.doc,.docx"
+            onChange={handleChange}
+            className="w-full"
+            required
+          />
+          {errors.resume && (
+            <p className="text-red-500 text-sm">{errors.resume}</p>
+          )}
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          className="bg-red-800 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Submit Application
+        </button>
+      </form>
     </div>
   );
 };
 
 export default JobApplicationForm;
+
 
 
 // import { useState } from 'react';
